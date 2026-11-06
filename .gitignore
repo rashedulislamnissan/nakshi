@@ -1,0 +1,6 @@
+# Source originals stay local: the site ships optimised copies (frames/, assets/).
+nakshi_frames/
+*.mp4
+nakshi Vase.png
+website entering logo.png
+karu-logo.png.jpeg

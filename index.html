@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Nakshi, in Clay · Karu</title>
+  <meta name="description" content="Nakshi, in Clay: a Bengali nakshi kantha textile imagined as a ceramic vessel by Karu. Scroll to turn the vase.">
+  <meta name="theme-color" content="#c8ad88">
+  <link rel="icon" type="image/png" href="./assets/karu-mark.png">
+
+  <meta property="og:title" content="Nakshi, in Clay">
+  <meta property="og:description" content="A Bengali textile imagined as a vessel.">
+  <meta property="og:image" content="./assets/entrance-1200.webp">
+
+  <!-- The two images the first second depends on: the entrance card, then frame 1 underneath it. -->
+  <link rel="preload" as="image" href="./assets/entrance-1200.webp"
+        imagesrcset="./assets/entrance-1200.webp 1200w, ./assets/entrance.webp 1672w" imagesizes="100vw" fetchpriority="high">
+  <link rel="preload" as="image" href="./frames/frame_0001.webp" fetchpriority="high">
+  <link rel="preload" as="font" type="font/woff2" href="./fonts/cormorant-garamond-latin-500-normal.woff2" crossorigin>
+
+  <link rel="stylesheet" href="./css/style.css">
+
+  <script>
+    // Runs before first paint: the entrance card only exists when JS can later remove it,
+    // and a timer guarantees it lifts even if the module never loads.
+    document.documentElement.classList.add('js');
+    setTimeout(function () { document.documentElement.classList.add('is-ready'); }, 8000);
+  </script>
+  <script type="module" src="./js/main.js"></script>
+</head>
+<body>
+  <div class="loader" id="loader" aria-hidden="true">
+    <img class="loader__art"
+         src="./assets/entrance-1200.webp"
+         srcset="./assets/entrance-1200.webp 1200w, ./assets/entrance.webp 1672w"
+         sizes="100vw" alt="" fetchpriority="high">
+  </div>
+
+  <header class="masthead">
+    <a class="brand" href="./" aria-label="Karu, home">
+      <img class="brand__mark" src="./assets/karu-mark.png" alt="" width="200" height="205">
+      <span class="brand__name">Karu</span>
+    </a>
+    <a class="masthead__link" id="portfolio-link" href="#">Portfolio</a>
+  </header>
+
+  <main>
+    <section class="scroller" id="scroller" aria-label="Nakshi, in Clay. Scroll to turn the vase.">
+      <div class="stage">
+        <canvas class="stage__canvas" id="stage-canvas" role="img"
+                aria-label="A ceramic vase covered in nakshi kantha embroidery: a river with a sailboat, a village home, harvest figures and lotus flowers, with a braided rim."></canvas>
+        <noscript>
+          <img class="stage__still" src="./frames/frame_0001.webp" alt="" width="1280" height="720">
+        </noscript>
+
+        <div class="overlay">
+          <div class="hero" id="hero">
+            <h1 class="hero__title"><span class="hero__line">Nakshi,</span> <span class="hero__line">in Clay</span></h1>
+            <p class="hero__tagline">A Bengali textile imagined as a vessel.</p>
+            <p class="cue" id="scroll-cue">
+              <span class="cue__label">Scroll to turn the vase</span>
+              <svg class="cue__thread" viewBox="0 0 8 64" aria-hidden="true" focusable="false">
+                <line x1="4" y1="0" x2="4" y2="64" />
+              </svg>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <p class="sr-only" id="status" role="status" aria-live="polite"></p>
+</body>
+</html>

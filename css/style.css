@@ -1,0 +1,298 @@
+/* Nakshi, in Clay: page styles.
+   Palette is sampled from the frames and the poster, so the page and the photographed
+   backdrop read as one surface. */
+
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('../fonts/cormorant-garamond-latin-500-normal.woff2') format('woff2');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('../fonts/cormorant-garamond-latin-600-normal.woff2') format('woff2');
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('../fonts/cormorant-garamond-latin-500-italic.woff2') format('woff2');
+  font-weight: 500; font-style: italic; font-display: swap;
+}
+
+:root {
+  /* Backdrop, left (window side) to right (shadow side), as measured on the frame edges. */
+  --paper-light: #dcc39f;
+  --paper: #c8ad88;
+  --paper-shade: #a0845e;
+  --entrance: #d6b488;   /* edge tone of the entrance card */
+
+  --ink: #33231a;        /* the poster's dark brown type */
+  --ink-soft: #5a4130;
+  --rust: #9a3f24;       /* used for the stitch and focus only */
+
+  --serif: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+
+  --gutter: clamp(16px, 5vw, 88px);
+  --ease-out: cubic-bezier(.22, .61, .36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--paper);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  /* Mirrors the frame's light-to-shadow fall-off so any uncovered strip (overscroll,
+     toolbar resize) matches the canvas instead of showing a seam. */
+  background:
+    linear-gradient(90deg, var(--paper-light) 0%, var(--paper) 55%, var(--paper-shade) 100%) fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img, svg, canvas { display: block; }
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- Entrance card (loading screen) ---------- */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  background: var(--entrance);
+  transition:
+    opacity var(--loader-fade, 900ms) var(--ease-out),
+    visibility 0s linear var(--loader-fade, 900ms);
+}
+.js .loader { display: block; }
+
+.loader__art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: 50% 45%;
+  transition: transform calc(var(--loader-fade, 900ms) * 1.4) var(--ease-out);
+}
+
+.is-ready .loader {
+  opacity: 0;
+  visibility: hidden;
+}
+.is-ready .loader__art { transform: scale(1.04); }
+
+/* Portrait: cropping the 16:9 card would cut the title, so letterbox it and feather
+   its top and bottom into the flat card colour. */
+@media (max-aspect-ratio: 1/1) {
+  .loader__art {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    /* Wider than the screen: the corner sprigs crop away, the mark and title stay whole. */
+    width: 150vw;
+    height: auto;
+    max-width: none;
+    object-fit: contain;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+  }
+}
+
+/* ---------- Masthead ---------- */
+
+.masthead {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(18px, env(safe-area-inset-top)) var(--gutter) 0;
+  pointer-events: none;
+}
+.masthead > * { pointer-events: auto; }
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+}
+.brand__mark { width: 30px; height: auto; }
+.brand__name {
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  /* tracking adds trailing space after the last letter; pull it back so the word sits optically centred */
+  margin-right: -0.32em;
+}
+
+.masthead__link {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 200ms ease;
+}
+.masthead__link:hover { border-bottom-color: currentColor; }
+
+/* ---------- Scroll stage ---------- */
+
+.scroller {
+  position: relative;
+  height: 600vh; /* overwritten from config.js */
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.stage__canvas,
+.stage__still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.stage__still { object-fit: cover; }
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.overlay a, .overlay button { pointer-events: auto; }
+
+/* ---------- Hero ---------- */
+
+/* Landscape: a left column over the window-lit side of the backdrop, where dark ink reads
+   best and the vase (centred in frame) is never covered. */
+.hero {
+  position: absolute;
+  left: var(--gutter);
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(34vw, 30rem);
+}
+
+.hero__title {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(2.4rem, 4.4vw, 5.25rem);
+  line-height: 1.08;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+/* Two lines, "Nakshi," over "in Clay", keeps the wide tracking inside the left column. */
+.hero__line { display: block; white-space: nowrap; }
+
+.hero__tagline {
+  margin: 1.4rem 0 0;
+  font-style: italic;
+  font-size: clamp(1.15rem, 1.45vw, 1.6rem);
+  line-height: 1.4;
+  color: var(--ink-soft);
+  max-width: 22em;
+}
+
+/* Scroll cue: a running stitch being sewn downward, the kantha stitch as the page's one motif. */
+.cue {
+  margin: clamp(2.5rem, 7vh, 5rem) 0 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+.cue__label {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+}
+.cue__thread {
+  width: 8px;
+  height: 64px;
+  overflow: visible;
+}
+.cue__thread line {
+  stroke: var(--rust);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 5 6;
+  animation: sew 1.6s linear infinite;
+}
+@keyframes sew {
+  from { stroke-dashoffset: 22; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Portrait phones: the canvas draws the frame slightly smaller and feathers it into the
+   backdrop (see canvas.js), which opens a band above the vase for the text. */
+@media (max-aspect-ratio: 1/1) {
+  .hero {
+    top: calc(max(18px, env(safe-area-inset-top)) + 64px);
+    left: var(--gutter);
+    right: var(--gutter);
+    transform: none;
+    width: auto;
+    text-align: center;
+  }
+  .hero__title {
+    font-size: clamp(1.7rem, 8.4vw, 3rem);
+    letter-spacing: 0.14em;
+    margin-right: -0.14em;
+  }
+  .hero__line { display: inline; }
+  .hero__tagline {
+    margin: 0.6rem auto 0;
+    font-size: 1.1rem;
+  }
+  /* The cue moves to the bottom edge, below the vase's foot. */
+  .cue {
+    position: fixed;
+    left: 0; right: 0;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    margin: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .cue__thread { height: 40px; }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --loader-fade: 400ms; }
+  .cue__thread line { animation: none; }
+  .is-ready .loader__art { transform: none; }
+}
