@@ -69,6 +69,17 @@
     </section>
   </main>
 
+  <div class="fetching" id="fetching" hidden>
+    <svg class="fetching__thread" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <defs>
+        <clipPath id="fetching-clip"><rect id="fetching-fill" x="0" y="0" width="0" height="4" /></clipPath>
+      </defs>
+      <line class="fetching__track" x1="1" y1="2" x2="99" y2="2" />
+      <line class="fetching__stitches" x1="1" y1="2" x2="99" y2="2" clip-path="url(#fetching-clip)" />
+    </svg>
+    <span class="fetching__label">Loading the vase</span>
+  </div>
+
   <p class="sr-only" id="status" role="status" aria-live="polite"></p>
 </body>
 </html>

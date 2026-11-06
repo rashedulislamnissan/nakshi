@@ -7,8 +7,20 @@
   - Hero: title, tagline, and a running-stitch scroll cue. Masthead with the Karu mark and a Portfolio link.
   - The `config.js` file holds the brand copy, links (placeholders), frame settings, scroll height, loader timing, and the chapter table.
 
+- **M2: Scrub engine** (2026-11-06)
+  - Scroll progress over the 600vh scroller maps to frames 1–159. The shown frame eases toward the target with a lerp of 0.12, frame-rate independent, so 60/90/120 Hz feel the same.
+  - The rAF loop runs only while the shown frame is moving or a new frame arrives. It sleeps when settled or when the tab is hidden, and restarts on scroll or visibility.
+  - Loader order: the frame for the current scroll position first (frame 1 on a fresh visit), alone on the connection. Then the coarse pass (every 4th frame plus the last), nearest-first. Then the fill pass, always the gap nearest the visitor's target frame. Six requests run in parallel, and a failed frame is retried once.
+  - Downloads beyond the first frame wait for the window `load` event, capped at 3 s. The entrance artwork gets the connection first, and the tab's spinner stops as soon as the visible page is done.
+  - The canvas always draws the nearest loaded frame, so it is never blank.
+  - Memory: frames stay as compressed `<img>` elements. Only the ~8 frames around the current one, ahead in the scroll direction, get `decode()` hints. The browser is free to discard the rest.
+  - On `saveData` or a 2g connection, only every 2nd frame is fetched (80 frames).
+  - A small loading thread (bottom-right on desktop, under the masthead on phones) appears only if the coarse pass takes longer than 1.5 s. Its stitches fill as coarse frames arrive.
+  - Measured in headless Chromium at 1440×900 during continuous wheel scrubbing: 965 frames, p50 16.7 ms, p95 16.8 ms, 0 frames over 33 ms, 0 long tasks.
+  - On a 1.5 Mbps / 150 ms connection: the card lifts at 2.6 s with its artwork painted. A jump to frame 99 with 25 frames loaded draws the nearest loaded frame. After the coarse pass, filling starts at frame 99 and works outward.
+
 ## Current milestone
-- M2: Scrub engine (next)
+- M3: Chapters and text (next)
 
 ## Decisions
 - **Font:** Cormorant Garamond (OFL), self-hosted in `fonts/`, latin subset, weights 500 / 500 italic / 600 (about 69 KB in total).
@@ -21,8 +33,9 @@
 - **Hosting:** to be decided at M6. The early lean is Vercel over Netlify, because of the per-visitor frame weight and Netlify's credit-based free tier.
 
 ## Known issues
-- Hero text is static HTML for now. M3 moves its fade timing into the config-driven chapter system.
+- The hero text stays on screen for the whole scroll (it overlaps the close-ups). M3 fades it out after chapter 1 using the config-driven chapter system.
+- `?debug` in the URL exposes `window.__nakshi` for automated checks. It is harmless, but consider removing it at M6.
 - On a phone held sideways (844×390), the title block sits close to the masthead. It is acceptable, but revisit it in M5.
 
 ## Next steps
-- M2: map scroll progress to frames, add lerp smoothing, the coarse-then-fill loader with nearest-loaded fallback, and pause when idle or the tab is hidden.
+- M3: overlays fade in and out by frame range from `config.js`. The hero becomes chapter 1. Verify each line lands on its visual moment, and adjust the frame ranges after viewing the frames.

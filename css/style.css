@@ -289,6 +289,58 @@ a { color: inherit; }
   .cue__thread { height: 40px; }
 }
 
+/* ---------- Loading thread (only on slow connections) ---------- */
+
+.fetching {
+  position: fixed;
+  right: var(--gutter);
+  bottom: max(22px, env(safe-area-inset-bottom));
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  pointer-events: none;
+  animation: fetching-in 400ms var(--ease-out) both;
+  transition: opacity 600ms ease;
+}
+.fetching[hidden] { display: none; }
+.fetching.is-done { opacity: 0; }
+
+.fetching__thread { width: 72px; height: 4px; overflow: visible; }
+.fetching__thread line {
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 4 4;
+  vector-effect: non-scaling-stroke;
+}
+.fetching__track { stroke: color-mix(in srgb, var(--ink) 22%, transparent); }
+.fetching__stitches { stroke: var(--rust); }
+#fetching-fill { transition: width 300ms var(--ease-out); }
+
+.fetching__label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+@keyframes fetching-in { from { opacity: 0; } }
+
+@media (max-aspect-ratio: 1/1) {
+  /* The scroll cue owns the bottom centre and the title spans the width, so on phones it is
+     just the thread, tucked under the Portfolio link. The label stays for screen readers. */
+  .fetching {
+    bottom: auto;
+    top: calc(max(18px, env(safe-area-inset-top)) + 42px);
+  }
+  .fetching__label {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
 /* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {

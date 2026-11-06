@@ -43,7 +43,10 @@ export const CONFIG = {
 
   loader: {
     minMs: 1100,          // keep the entrance card up at least this long so it never just flashes
+    holdMs: 700,          // ...and at least this long after its artwork appears (slow lines)
+    artCapMs: 3000,       // stop waiting for the artwork after this; the site matters more
     fadeMs: 900,
+    indicatorDelayMs: 1500, // the small loading thread appears only if the coarse pass is slower than this
     // The hard failsafe (lift the card after 8 s no matter what) lives in index.html,
     // because it must work even if this module never loads.
   },
