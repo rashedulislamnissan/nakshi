@@ -13,29 +13,39 @@ const TUNING = {
  * @param {object} opts.frame      { width, height } of the source frames
  * @param {number} opts.vaseHalfWidth  source px from frame centre to the vase's widest edge in close-ups
  */
-export function createChapters({ chapters, count, fade, frame, vaseHalfWidth, finaleVaseHalfWidth }) {
+export function createChapters({ chapters, count, fade, frame, vaseHalfWidth, finaleVaseHalfWidth, framePath }) {
   const root = document.getElementById('chapters');
 
   const items = chapters.map((ch) => {
-    // The intro and finale are written in the HTML (they paint before any script, and work
-    // without it); only their timing comes from config.
+    // Every chapter is written in the HTML as a no-JS fallback; config.js supplies the words
+    // whenever this runs. A chapter that exists only in config is created here.
     let el = document.querySelector(`[data-chapter="${ch.id}"]`);
     if (!el && ch.lines.length) {
       el = document.createElement('div');
       el.className = 'chapter';
       el.dataset.chapter = ch.id;
+      root.appendChild(el);
+    }
+    if (!el) return null;
+
+    if (ch.lines.length) {
+      el.querySelectorAll('.chapter__line').forEach((p) => p.remove());
+      const stitchless = !el.querySelector('.chapter__stitch');
       for (const line of ch.lines) {
         const p = document.createElement('p');
         p.className = 'chapter__line';
         p.textContent = line.text;
-        el.appendChild(p);
+        el.insertBefore(p, el.querySelector('.chapter__stitch'));
       }
-      el.insertAdjacentHTML('beforeend',
-        '<svg class="chapter__stitch" viewBox="0 0 96 4" aria-hidden="true" focusable="false"><line x1="1" y1="2" x2="95" y2="2"/></svg>');
-      root.appendChild(el);
+      if (stitchless) {
+        el.insertAdjacentHTML('beforeend',
+          '<svg class="chapter__stitch" viewBox="0 0 96 4" aria-hidden="true" focusable="false"><line x1="1" y1="2" x2="95" y2="2"/></svg>');
+      }
     }
-    return el && {
+
+    return {
       el,
+      keyFrame: ch.keyFrame,
       stitch: el.querySelector('.chapter__stitch'),
       from: ch.frames[0],
       to: ch.frames[1],
@@ -86,8 +96,16 @@ export function createChapters({ chapters, count, fade, frame, vaseHalfWidth, fi
     }
   }
 
+  /** Still layout: give each chapter its key frame as a backdrop (only then, so the scrub
+   *  layout never downloads them twice). */
+  function useStills() {
+    for (const it of items) {
+      if (it.keyFrame) it.el.style.backgroundImage = `url("${new URL(framePath(it.keyFrame), location.href)}")`;
+    }
+  }
+
   layout();
   window.addEventListener('resize', layout);
 
-  return { update };
+  return { update, useStills };
 }

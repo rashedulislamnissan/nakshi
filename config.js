@@ -11,13 +11,12 @@ export const CONFIG = {
     series: ['Nakshi Series / 01', 'River Memory', 'Bangladesh'],
   },
 
+  // index.html repeats these as fallbacks for visitors without JavaScript; keep them in step.
   links: {
-    // PLACEHOLDER: replace with the real address before launch.
-    notify: 'mailto:hello@example.com?subject=Notify%20me%20%E2%80%94%20Nakshi%2C%20in%20Clay',
+    notify: 'mailto:rashedulislamnissan4@gmail.com?subject=Notify%20me%3A%20Nakshi%2C%20in%20Clay',
     // PLACEHOLDER: where "Explore the Nakshi Series" should go.
     explore: '#',
-    // PLACEHOLDER: the portfolio home page.
-    portfolio: '#',
+    portfolio: 'https://nissan-portfolio.pages.dev/',
   },
 
   frames: {
@@ -64,15 +63,17 @@ export const CONFIG = {
   //   1–24 full vase, nearly still · 25–40 push-in to the river · 41–56 river and boat close
   //   57–75 the home and harvest figure · 76–99 the river returns · 100–128 into the rim
   //   129–144 pull-back · 145–159 full vase, holding.
-  // The intro's words live in index.html (so they paint before any script); its range here
-  // only controls when it fades.
+  //
+  // `keyFrame` is the still shown for that chapter in the reduced-motion layout.
+  // The intro's and finale's words come from `brand` above. index.html carries all of this
+  // text as a fallback (no-JS visitors); when the script runs, these values replace it.
   chapters: [
-    { id: 'intro',   frames: [1, 18],    lines: [] },
-    { id: 'thread',  frames: [22, 40],   lines: [{ text: 'Born as thread.' }] },
-    { id: 'river',   frames: [43, 55],   lines: [{ text: 'A river, remembered.' }] },
-    { id: 'home',    frames: [58, 74],   lines: [{ text: 'A home, stitched in.' }] },
-    { id: 'season',  frames: [78, 99],   lines: [{ text: 'Every season, held.' }] },
-    { id: 'rim',     frames: [104, 127], lines: [{ text: 'Held in clay.' }] },
-    { id: 'finale',  frames: [140, 159], lines: [] }, // built in M4
+    { id: 'intro',   frames: [1, 18],    keyFrame: 1,   lines: [] },
+    { id: 'thread',  frames: [22, 40],   keyFrame: 31,  lines: [{ text: 'Born as thread.' }] },
+    { id: 'river',   frames: [43, 55],   keyFrame: 49,  lines: [{ text: 'A river, remembered.' }] },
+    { id: 'home',    frames: [58, 74],   keyFrame: 66,  lines: [{ text: 'A home, stitched in.' }] },
+    { id: 'season',  frames: [78, 99],   keyFrame: 88,  lines: [{ text: 'Every season, held.' }] },
+    { id: 'rim',     frames: [104, 127], keyFrame: 115, lines: [{ text: 'Held in clay.' }] },
+    { id: 'finale',  frames: [140, 159], keyFrame: 159, lines: [] },
   ],
 };

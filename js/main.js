@@ -1,23 +1,24 @@
-// Boot and scrub loop: scroll position picks a target frame, the shown frame eases toward
-// it, and the loop sleeps whenever nothing is moving.
+// Boot. Two layouts share one page:
+//  - scrub (default): scroll position picks a target frame, the shown frame eases toward it,
+//    and the loop sleeps whenever nothing is moving;
+//  - still (prefers-reduced-motion): each chapter is a full-screen key frame with its text,
+//    scrolled like an ordinary page. The same CSS serves visitors without JavaScript.
 
 import { CONFIG } from '../config.js';
 import { createStage } from './canvas.js';
-import { createFrameStore, pickStep } from './frames.js';
+import { createFrameStore, pickStep, loadImage } from './frames.js';
 import { initLoader, applyContent, initFetchIndicator, fontsReady } from './ui.js';
 import { createChapters } from './chapters.js';
 
 const { frames: F, scroll: S } = CONFIG;
 
-const scroller = document.getElementById('scroller');
+const root = document.documentElement;
 const status = document.getElementById('status');
+const notify = document.getElementById('notify-link');
+const skip = document.getElementById('skip-end');
 
-scroller.style.height = `${S.heightVh}vh`;
 applyContent(CONFIG);
-
-const stage = createStage(document.getElementById('stage-canvas'), CONFIG.canvas);
 const loader = initLoader(CONFIG.loader);
-const fetching = initFetchIndicator(CONFIG.loader.indicatorDelayMs);
 const chapters = createChapters({
   chapters: CONFIG.chapters,
   count: F.count,
@@ -25,133 +26,165 @@ const chapters = createChapters({
   frame: F,
   vaseHalfWidth: CONFIG.text.vaseHalfWidth,
   finaleVaseHalfWidth: CONFIG.text.finaleVaseHalfWidth,
+  framePath: F.path,
 });
 
-// ---------- Scroll geometry ----------
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const debug = new URLSearchParams(location.search).has('debug');
 
-let top = 0;
-let range = 1;
+if (reducedMotion) startStill();
+else startScrub();
 
-function measure() {
-  top = scroller.getBoundingClientRect().top + window.scrollY;
-  range = Math.max(1, scroller.offsetHeight - window.innerHeight);
+// ---------- Still layout ----------
+
+function startStill() {
+  root.classList.add('is-static');
+  chapters.useStills();
+
+  // The skip link is an ordinary in-page anchor here; just carry focus to the first action.
+  skip.addEventListener('click', () => {
+    requestAnimationFrame(() => notify.focus({ preventScroll: true }));
+  });
+
+  // Lift the card once the opening still (frame 1, already preloaded) is ready.
+  const first = loadImage(F.path(1)).catch(() => {});
+  const capped = Promise.race([first, new Promise((r) => setTimeout(r, 6000))]);
+  Promise.allSettled([capped, fontsReady(), loader.artReady]).then(loader.reveal);
+
+  if (debug) window.__nakshi = { mode: 'still', chapters };
 }
 
-/** Fractional frame number (1..count) for the current scroll position. */
-function targetFrame() {
-  const p = Math.min(1, Math.max(0, (window.scrollY - top) / range));
-  return 1 + p * (F.count - 1);
-}
+// ---------- Scrub layout ----------
 
-// ---------- Frames ----------
+function startScrub() {
+  const scroller = document.getElementById('scroller');
+  scroller.style.height = `${S.heightVh}vh`;
 
-let firstResolve;
-const firstFrame = new Promise((r) => { firstResolve = r; });
+  const stage = createStage(document.getElementById('stage-canvas'), CONFIG.canvas);
+  const fetching = initFetchIndicator(CONFIG.loader.indicatorDelayMs);
 
-const store = createFrameStore({
-  ...F,
-  step: pickStep(F),
-  onReady(n, img) {
-    if (firstResolve) {
-      // Decode before the first paint so the entrance card lifts onto a finished frame.
-      // Take the resolver now: other frames can land while this decode is in flight.
-      const resolve = firstResolve;
-      firstResolve = null;
-      img.decode().catch(() => {}).then(() => { resolve(); kick(); });
-      return;
-    }
-    // A newly arrived frame may be closer to the one we want than what is on screen.
-    kick();
-  },
-  onCoarseProgress: fetching.progress,
-});
+  // Scroll geometry
+  let top = 0;
+  let range = 1;
 
-// ---------- Loop ----------
-
-const FRAME_MS = 1000 / 60;
-const SETTLE = 0.02; // frames; closer than this counts as arrived
-
-let shown = 1;
-let running = false;
-let lastTime = 0;
-let lastIndex = -1;
-
-function tick(now) {
-  if (document.hidden) { running = false; lastTime = 0; return; }
-
-  const dt = lastTime ? Math.min(64, now - lastTime) : FRAME_MS;
-  lastTime = now;
-
-  const target = targetFrame();
-  // Same easing per second at any refresh rate (60, 90, 120 Hz).
-  const a = 1 - Math.pow(1 - S.lerp, dt / FRAME_MS);
-  shown += (target - shown) * a;
-  if (Math.abs(target - shown) < SETTLE) shown = target;
-
-  const index = Math.round(shown);
-  stage.draw(store.nearest(index));
-  chapters.update(shown);
-
-  if (index !== lastIndex) {
-    store.setFocus(Math.round(target));
-    store.warm(index, Math.sign(target - shown));
-    lastIndex = index;
+  function measure() {
+    top = scroller.getBoundingClientRect().top + window.scrollY;
+    range = Math.max(1, scroller.offsetHeight - window.innerHeight);
   }
 
-  if (shown === target) { running = false; lastTime = 0; return; }
-  requestAnimationFrame(tick);
-}
+  /** Fractional frame number (1..count) for the current scroll position. */
+  function targetFrame() {
+    const p = Math.min(1, Math.max(0, (window.scrollY - top) / range));
+    return 1 + p * (F.count - 1);
+  }
 
-function kick() {
-  if (running || document.hidden) return;
-  running = true;
-  requestAnimationFrame(tick);
-}
+  // Frames
+  let firstResolve;
+  const firstFrame = new Promise((r) => { firstResolve = r; });
 
-// ---------- Wiring ----------
+  const store = createFrameStore({
+    ...F,
+    step: pickStep(F),
+    onReady(n, img) {
+      if (firstResolve) {
+        // Decode before the first paint so the entrance card lifts onto a finished frame.
+        // Take the resolver now: other frames can land while this decode is in flight.
+        const resolve = firstResolve;
+        firstResolve = null;
+        img.decode().catch(() => {}).then(() => { resolve(); kick(); });
+        return;
+      }
+      // A newly arrived frame may be closer to the one we want than what is on screen.
+      kick();
+    },
+    onCoarseProgress: fetching.progress,
+  });
 
-measure();
-// A reload mid-page restores the scroll position: start there instead of spinning up from frame 1.
-shown = targetFrame();
-chapters.update(shown);
-store.start(Math.round(shown));
+  // Loop
+  const FRAME_MS = 1000 / 60;
+  const SETTLE = 0.02; // frames; closer than this counts as arrived
 
-// "Skip to the end": land on the finale at once (no long eased turn) and put keyboard focus
-// on its first action, since the finale's links can't be tabbed to while it is hidden.
-document.getElementById('skip-end').addEventListener('click', (e) => {
-  e.preventDefault();
-  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+  let shown = 1;
+  let running = false;
+  let lastTime = 0;
+  let lastIndex = -1;
+
+  function tick(now) {
+    if (document.hidden) { running = false; lastTime = 0; return; }
+
+    const dt = lastTime ? Math.min(64, now - lastTime) : FRAME_MS;
+    lastTime = now;
+
+    const target = targetFrame();
+    // Same easing per second at any refresh rate (60, 90, 120 Hz).
+    const a = 1 - Math.pow(1 - S.lerp, dt / FRAME_MS);
+    shown += (target - shown) * a;
+    if (Math.abs(target - shown) < SETTLE) shown = target;
+
+    const index = Math.round(shown);
+    stage.draw(store.nearest(index));
+    chapters.update(shown);
+
+    if (index !== lastIndex) {
+      store.setFocus(Math.round(target));
+      store.warm(index, Math.sign(target - shown));
+      lastIndex = index;
+    }
+
+    if (shown === target) { running = false; lastTime = 0; return; }
+    requestAnimationFrame(tick);
+  }
+
+  function kick() {
+    if (running || document.hidden) return;
+    running = true;
+    requestAnimationFrame(tick);
+  }
+
+  // Wiring
   measure();
+  // A reload mid-page restores the scroll position: start there instead of spinning up from frame 1.
   shown = targetFrame();
-  stage.draw(store.nearest(Math.round(shown)));
   chapters.update(shown);
-  document.getElementById('notify-link').focus({ preventScroll: true });
-});
+  store.start(Math.round(shown));
 
-window.addEventListener('scroll', kick, { passive: true });
-window.addEventListener('resize', () => { measure(); kick(); });
-document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(); });
+  // "Skip to the end": land on the finale at once (no long eased turn) and put keyboard focus
+  // on its first action, since the finale's links can't be tabbed to while it is hidden.
+  skip.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+    measure();
+    shown = targetFrame();
+    stage.draw(store.nearest(Math.round(shown)));
+    chapters.update(shown);
+    notify.focus({ preventScroll: true });
+  });
 
-const firstOrFail = Promise.race([
-  firstFrame,
-  // If even the first frame cannot arrive, lift the card anyway; the backdrop is painted.
-  new Promise((r) => setTimeout(r, 6000)),
-]).then(() => {
-  if (!store.loadedCount()) status.textContent = 'The vase images could not be loaded. Please refresh to try again.';
-});
+  window.addEventListener('scroll', kick, { passive: true });
+  window.addEventListener('resize', () => { measure(); kick(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(); });
 
-// Frame downloads beyond frame 1 wait for the page's load event (entrance artwork, frame 1,
-// fonts), so the card's artwork gets the connection first and the tab's spinner stops as
-// soon as the visible page is complete. Capped, so a stalled asset can't hold back the vase.
-const pageLoaded = new Promise((r) => {
-  if (document.readyState === 'complete') r();
-  else window.addEventListener('load', r, { once: true });
-});
-Promise.race([pageLoaded, new Promise((r) => setTimeout(r, CONFIG.loader.artCapMs))]).then(store.release);
+  const firstOrFail = Promise.race([
+    firstFrame,
+    // If even the first frame cannot arrive, lift the card anyway; the backdrop is painted.
+    new Promise((r) => setTimeout(r, 6000)),
+  ]).then(() => {
+    if (!store.loadedCount()) status.textContent = 'The vase images could not be loaded. Please refresh to try again.';
+  });
 
-Promise.allSettled([firstOrFail, fontsReady(), loader.artReady]).then(loader.reveal);
+  // Frame downloads beyond frame 1 wait for the page's load event (entrance artwork, frame 1,
+  // fonts), so the card's artwork gets the connection first and the tab's spinner stops as
+  // soon as the visible page is complete. Capped, so a stalled asset can't hold back the vase.
+  const pageLoaded = new Promise((r) => {
+    if (document.readyState === 'complete') r();
+    else window.addEventListener('load', r, { once: true });
+  });
+  Promise.race([pageLoaded, new Promise((r) => setTimeout(r, CONFIG.loader.artCapMs))]).then(store.release);
 
-// Debug handle for automated checks (?debug in the URL); costs nothing otherwise.
-if (new URLSearchParams(location.search).has('debug')) {
-  window.__nakshi = { store, chapters, get shown() { return shown; }, targetFrame, get running() { return running; } };
+  Promise.allSettled([firstOrFail, fontsReady(), loader.artReady]).then(loader.reveal);
+
+  // Debug handle for automated checks (?debug in the URL); costs nothing otherwise.
+  if (debug) {
+    window.__nakshi = { mode: 'scrub', store, chapters, get shown() { return shown; }, targetFrame, get running() { return running; } };
+  }
 }

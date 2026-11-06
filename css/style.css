@@ -600,6 +600,98 @@ a { color: inherit; }
   .cue { margin-top: 1.5rem; }
 }
 
+/* ---------- Still layout (reduced motion, or no JavaScript) ----------
+   The scroll stage unfolds into a column of full-screen stills, one per chapter, each with its
+   words in the same place they take in the scrub. Nothing moves, nothing is hidden. */
+
+:is(html.is-static, html:not(.js)) .scroller { height: auto; }
+:is(html.is-static, html:not(.js)) .stage { position: static; height: auto; overflow: visible; }
+:is(html.is-static, html:not(.js)) .stage__canvas { display: none; }
+:is(html.is-static, html:not(.js)) .overlay,
+:is(html.is-static, html:not(.js)) .chapters { position: static; pointer-events: auto; }
+:is(html.is-static, html:not(.js)) .cue { display: none; }
+
+:is(html.is-static, html:not(.js)) [data-chapter] {
+  position: relative;
+  inset: auto;
+  transform: none;
+  width: auto;
+  max-width: none;
+  min-height: 100vh;
+  min-height: 100svh;
+  opacity: 1;
+  visibility: visible;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 6rem var(--gutter) 4rem;
+  background: var(--paper) center / cover no-repeat;
+}
+:is(html.is-static, html:not(.js)) [data-chapter] > * {
+  position: relative;
+  z-index: 1;
+  max-width: max(13rem, calc(var(--vase-left, 30vw) - var(--gutter) - 2rem));
+}
+:is(html.is-static, html:not(.js)) .hero > * { max-width: min(34vw, 30rem); }
+:is(html.is-static, html:not(.js)) .chapter__stitch { clip-path: none; }
+:is(html.is-static, html:not(.js)) .finale__sign {
+  position: relative;
+  inset: auto;
+  transform: none;
+  width: auto;
+  max-width: max(15rem, calc(var(--vase-left-final, 34vw) - var(--gutter) - 2rem));
+}
+:is(html.is-static, html:not(.js)) .finale__series { position: absolute; z-index: 1; }
+
+/* Without JavaScript the stills come from here; with it, chapters.js sets them from config. */
+html:not(.js) [data-chapter="intro"]  { background-image: url('../frames/frame_0001.webp'); }
+html:not(.js) [data-chapter="thread"] { background-image: url('../frames/frame_0031.webp'); }
+html:not(.js) [data-chapter="river"]  { background-image: url('../frames/frame_0049.webp'); }
+html:not(.js) [data-chapter="home"]   { background-image: url('../frames/frame_0066.webp'); }
+html:not(.js) [data-chapter="season"] { background-image: url('../frames/frame_0088.webp'); }
+html:not(.js) [data-chapter="rim"]    { background-image: url('../frames/frame_0115.webp'); }
+html:not(.js) [data-chapter="finale"] { background-image: url('../frames/frame_0159.webp'); }
+
+@media (max-aspect-ratio: 1/1) {
+  /* Portrait: the still sits in the middle of the screen, feathered top and bottom into the
+     paper, with the words in the band above it (and the finale's sign-off below). */
+  :is(html.is-static, html:not(.js)) [data-chapter] {
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    padding: calc(max(18px, env(safe-area-inset-top)) + 70px) var(--gutter) 2rem;
+    /* The still spans 72% of the height, placed 60% down: about 17%–89% of the section.
+       The feather below is matched to those edges. */
+    background-size: auto 72%;
+    background-position: center 60%;
+    --feather: linear-gradient(180deg,
+      var(--paper) 0%, var(--paper) 20%, rgb(200 173 136 / 0) 31%,
+      rgb(200 173 136 / 0) 76%, var(--paper) 88.5%, var(--paper) 100%);
+  }
+  /* The finale's still sits higher and smaller (about 13%–69%), leaving paper below for the
+     sign-off. */
+  :is(html.is-static, html:not(.js)) .finale {
+    background-size: auto 56%;
+    background-position: center 30%;
+    --feather: linear-gradient(180deg,
+      var(--paper) 0%, var(--paper) 13%, rgb(200 173 136 / 0) 21%,
+      rgb(200 173 136 / 0) 58%, var(--paper) 68.5%, var(--paper) 100%);
+  }
+  :is(html.is-static, html:not(.js)) [data-chapter]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    height: auto;
+    z-index: 0;
+    background: var(--feather);
+  }
+  :is(html.is-static, html:not(.js)) [data-chapter] > *,
+  :is(html.is-static, html:not(.js)) .hero > * { max-width: none; }
+  :is(html.is-static, html:not(.js)) .finale { justify-content: flex-end; }
+  :is(html.is-static, html:not(.js)) .finale__sign { max-width: none; }
+}
+
 /* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {

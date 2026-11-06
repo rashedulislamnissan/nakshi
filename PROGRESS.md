@@ -35,8 +35,17 @@
   - Keyboard: hidden chapters use `visibility: hidden`, so the finale links are not tabbable until they are on screen. A "Skip to the end" link (first Tab stop, visible on focus) jumps straight to frame 159 and focuses **Notify me**. Tab order at frame 1: skip, Karu, Portfolio. At frame 159: Portfolio, Notify me, Explore.
   - Fix: on portrait, the frame now draws at whole-pixel offsets. A fractional offset let the frame's lighter top row show as a 1px hairline under the masthead.
 
+- **M5: Mobile, performance, accessibility** (2026-11-06)
+  - **Still layout.** With `prefers-reduced-motion` (class `is-static`) or with no JavaScript, the stage unfolds into seven full-screen stills, one per chapter (`keyFrame` in config: 1, 31, 49, 66, 88, 115, 159). Each still carries its words in the same place they take in the scrub. It uses no canvas, no scrubbing and no animations (`document.getAnimations()` returns 0), and only those 7 frames download. On portrait the still sits mid-screen, feathered into the paper. The finale's still is smaller and higher, leaving room for the sign-off.
+  - The no-JS layout uses the same CSS. The key frames come from per-chapter rules in `style.css`; with JS they come from config. The old `<noscript>` image is gone, because the still layout covers that case.
+  - The chapter lines now live in `index.html` as fallback copy. `chapters.js` replaces their words from `config.js` and still creates any chapter that exists only in config.
+  - Real links: portfolio `https://nissan-portfolio.pages.dev/` and Notify me `mailto:rashedulislamnissan4@gmail.com`. They are in config and repeated in the HTML for no-JS visitors.
+  - Touch: synthesized touch-scroll gestures on a 390×844 @3x mobile profile gave 744 frames, p50 16.7 ms, p95 16.8 ms, 0 over 33 ms.
+  - Memory: after scrubbing end to end several times on that profile, all headless Chromium processes together used 115 MB of private memory (52 MB before the page), and the JS heap was 2.3 MB. Holding all 159 frames decoded would need about 586 MB for the bitmaps alone.
+  - Re-verified the M2 and M4 suites after the boot refactor: the hidden-tab pause, smoothness, the loader on slow and data-saver connections, the finale tab order and the skip link all pass. No console errors in any run.
+
 ## Current milestone
-- M5: Mobile, performance, accessibility (next)
+- M6: Polish and deploy (next)
 
 ## Decisions
 - **Font:** Cormorant Garamond (OFL), self-hosted in `fonts/`, latin subset, weights 500 / 500 italic / 600 (about 69 KB in total).
@@ -51,8 +60,9 @@
 ## Known issues
 - Frames 41–42 of the source video have a faint ghosted edge on the vase (a seam in the original render). It is visible only when scrubbing slowly through that point.
 - `?debug` in the URL exposes `window.__nakshi` for automated checks. It is harmless, but consider removing it at M6.
-- On a phone held sideways (844×390), the hero is tighter than on other screens (short-landscape rules added in M4). Re-check it in M5.
+- The reduced-motion mode is read once at load. Switching the OS setting mid-visit takes effect on the next reload.
+- The memory and touch figures come from headless Chromium on a desktop machine. They are indicative only; a real mid-range phone should be checked after deploy.
 
 ## Next steps
-- M5: a `prefers-reduced-motion` static layout (key frames and the same text, no scrubbing); a `<noscript>` layout (frame 1, all text, finale visible); a touch-scroll check; a memory check on a phone profile; hidden-tab pause (done in M2, re-verify).
-- Placeholders still to fill in `config.js`: the `notify` email, the `explore` URL and the `portfolio` URL.
+- M6: README (live link, how it works, how the frames were made, a GIF placeholder), check relative paths, choose the host (check current free-tier limits), deploy, and confirm there are no 404s on the live URL.
+- Placeholder still to fill in `config.js` and `index.html`: the `explore` URL for "Explore the Nakshi Series".

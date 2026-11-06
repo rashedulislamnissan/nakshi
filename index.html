@@ -43,7 +43,7 @@
       <img class="brand__mark" src="./assets/karu-mark.png" alt="" width="200" height="205">
       <span class="brand__name">Karu</span>
     </a>
-    <a class="masthead__link" id="portfolio-link" href="#">Portfolio</a>
+    <a class="masthead__link" id="portfolio-link" href="https://nissan-portfolio.pages.dev/">Portfolio</a>
   </header>
 
   <main>
@@ -51,9 +51,6 @@
       <div class="stage">
         <canvas class="stage__canvas" id="stage-canvas" role="img"
                 aria-label="A ceramic vase covered in nakshi kantha embroidery: a river with a sailboat, a village home, harvest figures and lotus flowers, with a braided rim."></canvas>
-        <noscript>
-          <img class="stage__still" src="./frames/frame_0001.webp" alt="" width="1280" height="720">
-        </noscript>
 
         <div class="overlay">
           <div class="hero" id="hero" data-chapter="intro">
@@ -66,8 +63,15 @@
               </svg>
             </p>
           </div>
-          <!-- Chapter lines are built from config.js by js/chapters.js. -->
-          <div class="chapters" id="chapters"></div>
+          <!-- Fallback copy for visitors without JavaScript; js/chapters.js replaces the words
+               from config.js (and adds any chapter that exists only there). -->
+          <div class="chapters" id="chapters">
+            <div class="chapter" data-chapter="thread"><p class="chapter__line">Born as thread.</p></div>
+            <div class="chapter" data-chapter="river"><p class="chapter__line">A river, remembered.</p></div>
+            <div class="chapter" data-chapter="home"><p class="chapter__line">A home, stitched in.</p></div>
+            <div class="chapter" data-chapter="season"><p class="chapter__line">Every season, held.</p></div>
+            <div class="chapter" data-chapter="rim"><p class="chapter__line">Held in clay.</p></div>
+          </div>
 
           <section class="finale" id="finale" data-chapter="finale" aria-labelledby="finale-line">
             <div class="finale__sign">
@@ -75,7 +79,7 @@
               <p class="finale__brand" data-config="brand.name">Karu</p>
               <h2 class="finale__line" id="finale-line" data-config="brand.finaleLine">Crafted from memory.</h2>
               <div class="finale__actions">
-                <a class="button" id="notify-link" href="#">Notify me</a>
+                <a class="button" id="notify-link" href="mailto:rashedulislamnissan4@gmail.com?subject=Notify%20me%3A%20Nakshi%2C%20in%20Clay">Notify me</a>
                 <a class="stitched-link" id="explore-link" href="#">Explore the Nakshi Series</a>
               </div>
             </div>
