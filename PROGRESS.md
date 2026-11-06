@@ -44,8 +44,16 @@
   - Memory: after scrubbing end to end several times on that profile, all headless Chromium processes together used 115 MB of private memory (52 MB before the page), and the JS heap was 2.3 MB. Holding all 159 frames decoded would need about 586 MB for the bitmaps alone.
   - Re-verified the M2 and M4 suites after the boot refactor: the hidden-tab pause, smoothness, the loader on slow and data-saver connections, the finale tab order and the skip link all pass. No console errors in any run.
 
+- **M6: Polish and deploy** (2026-11-06)
+  - **Live: https://rashedulislamnissan.github.io/nakshi/** (repo: https://github.com/rashedulislamnissan/nakshi, public). One responsive URL serves PC and mobile.
+  - README (live link, how it works, controls, tuning, assets, run locally), `.nojekyll`, a 1200×630 JPEG share image, and absolute Open Graph and Twitter tags.
+  - "Explore the Nakshi Series" is plain text with no link, as requested.
+  - Commit history uses the GitHub no-reply address (`352694445+rashedulislamnissan@users.noreply.github.com`). No personal email is in the history.
+  - Branch protection on `main`: no force-pushes, no deletion, and the rule applies to admins too. Only the owner can push.
+  - Live checks: all 176 published files return 200 from the `/nakshi/` subpath. The real site boots, loads all 159 frames, scrubs and reaches the finale at 1440×900 and 390×844 @3x, with no console errors and no 4xx responses.
+
 ## Current milestone
-- M6: Polish and deploy (next)
+- All milestones complete.
 
 ## Decisions
 - **Font:** Cormorant Garamond (OFL), self-hosted in `fonts/`, latin subset, weights 500 / 500 italic / 600 (about 69 KB in total).
@@ -55,14 +63,16 @@
 - **Logo:** `assets/karu-mark.png` is the supplied JPG with the paper background removed and the mark recoloured to the ink tone.
 - **Loader failsafe:** an inline script in `index.html` lifts the card after 8 s even if the JS module fails.
 - **Originals** (source video, poster, PNGs) are git-ignored. The site ships only the optimised copies.
-- **Hosting:** to be decided at M6. The early lean is Vercel over Netlify, because of the per-visitor frame weight and Netlify's credit-based free tier.
+- **Hosting:** GitHub Pages, chosen after checking the free tiers in November 2026. Netlify's credit system pauses every site on the team when credits run out. Vercel Hobby reportedly pauses a project for 30 days after about 100 GB. GitHub Pages has a soft 100 GB/month limit with no automatic pause (about 18,000 full visits at about 5.5 MB each). Cloudflare Pages was ruled out because CLAUDE.md reserves that account for another project.
+- **Deploy tooling:** the GitHub CLI runs as a portable copy at `%LOCALAPPDATA%\gh-cli\bin\gh.exe` (no admin install). To publish changes, commit and `git push`; Pages rebuilds in about a minute.
 
 ## Known issues
 - Frames 41–42 of the source video have a faint ghosted edge on the vase (a seam in the original render). It is visible only when scrubbing slowly through that point.
-- `?debug` in the URL exposes `window.__nakshi` for automated checks. It is harmless, but consider removing it at M6.
+- `?debug` in the URL exposes `window.__nakshi`, which the automated checks use. It is read-only and harmless, so it was left in.
 - The reduced-motion mode is read once at load. Switching the OS setting mid-visit takes effect on the next reload.
-- The memory and touch figures come from headless Chromium on a desktop machine. They are indicative only; a real mid-range phone should be checked after deploy.
+- The memory and touch figures come from headless Chromium on a desktop machine. They are indicative only; a check on a real mid-range phone is still worthwhile.
 
-## Next steps
-- M6: README (live link, how it works, how the frames were made, a GIF placeholder), check relative paths, choose the host (check current free-tier limits), deploy, and confirm there are no 404s on the live URL.
-- Placeholder still to fill in `config.js` and `index.html`: the `explore` URL for "Explore the Nakshi Series".
+## Next steps (optional)
+- Record a short GIF of the scrub and save it as `docs/demo.gif` (the README already points there).
+- Add a sentence to the README on how the source video was made.
+- If a series page appears, turn "Explore the Nakshi Series" back into a link (`<a class="stitched-link">` in index.html, plus a link in config).
