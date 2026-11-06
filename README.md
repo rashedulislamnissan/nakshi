@@ -2,7 +2,7 @@
 
 A product page for **Nakshi, in Clay**, a concept vessel by the brand **Karu**: a Bengali nakshi kantha textile imagined as a ceramic vase. The page stays still while scrolling turns the vase. The camera pushes in on the stitched river, rotates through village and harvest scenes, looks into the braided rim, and pulls back to a finale.
 
-**Live:** https://LIVE-URL-PENDING/
+**Live:** https://rashedulislamnissan.github.io/nakshi/
 
 ![Scrolling the vase (GIF placeholder)](docs/demo.gif)
 
