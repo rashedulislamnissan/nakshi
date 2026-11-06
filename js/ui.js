@@ -94,7 +94,7 @@ export function applyContent(config) {
     }));
   }
 
-  const links = { 'portfolio-link': config.links.portfolio, 'notify-link': config.links.notify, 'explore-link': config.links.explore };
+  const links = { 'portfolio-link': config.links.portfolio, 'notify-link': config.links.notify };
   for (const [id, href] of Object.entries(links)) {
     const a = document.getElementById(id);
     if (a && href) a.href = href;

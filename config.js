@@ -14,8 +14,7 @@ export const CONFIG = {
   // index.html repeats these as fallbacks for visitors without JavaScript; keep them in step.
   links: {
     notify: 'mailto:rashedulislamnissan4@gmail.com?subject=Notify%20me%3A%20Nakshi%2C%20in%20Clay',
-    // PLACEHOLDER: where "Explore the Nakshi Series" should go.
-    explore: '#',
+    // "Explore the Nakshi Series" is shown as plain text for now (no page exists yet).
     portfolio: 'https://nissan-portfolio.pages.dev/',
   },
 

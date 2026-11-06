@@ -386,9 +386,10 @@ a { color: inherit; }
   text-decoration-color: var(--rust);
   text-decoration-thickness: 1.5px;
   text-underline-offset: 0.4em;
-  transition: color 200ms ease;
 }
-.stitched-link:hover { color: var(--rust); }
+/* Currently a plain label (no series page yet). If it becomes a link, give it a hover colour. */
+a.stitched-link { transition: color 200ms ease; }
+a.stitched-link:hover { color: var(--rust); }
 
 /* Bottom-right with a hairline, as on the poster. */
 .finale__series {
