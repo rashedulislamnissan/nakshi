@@ -19,8 +19,16 @@
   - Measured in headless Chromium at 1440×900 during continuous wheel scrubbing: 965 frames, p50 16.7 ms, p95 16.8 ms, 0 frames over 33 ms, 0 long tasks.
   - On a 1.5 Mbps / 150 ms connection: the card lifts at 2.6 s with its artwork painted. A jump to frame 99 with 25 frames loaded draws the nearest loaded frame. After the coarse pass, filling starts at frame 99 and works outward.
 
+- **M3: Chapters and text** (2026-11-06)
+  - `js/chapters.js` builds the chapter lines from `config.js` and fades them by the *shown* (smoothed) frame, so the text moves in step with the picture. The intro is the existing HTML hero, so it still paints before any script runs.
+  - The fades happen inside each range (`text.fadeFrames: 4`), so neighbouring chapters never overlap. A sweep of every quarter-frame from 1 to 159 found no frame with two blocks visible.
+  - Frame ranges were re-set after checking every frame on contact sheets (the spec's estimates were close but early). See the comment in `config.js`.
+  - Landscape text width comes from where the vase's widest close-up edge lands on the current screen (`--vase-left`, from `text.vaseHalfWidth`). Measured at 1280×720, 1440×900 and 1920×1080, each block's right edge stays 32 px clear of the vase.
+  - Each line has a running stitch under it that sews in, whole stitches at a time, as you scroll through that chapter.
+  - A soft halo in the backdrop colour keeps the ink readable where a portrait close-up reaches the text band.
+
 ## Current milestone
-- M3: Chapters and text (next)
+- M4: Finale (next)
 
 ## Decisions
 - **Font:** Cormorant Garamond (OFL), self-hosted in `fonts/`, latin subset, weights 500 / 500 italic / 600 (about 69 KB in total).
@@ -33,9 +41,9 @@
 - **Hosting:** to be decided at M6. The early lean is Vercel over Netlify, because of the per-visitor frame weight and Netlify's credit-based free tier.
 
 ## Known issues
-- The hero text stays on screen for the whole scroll (it overlaps the close-ups). M3 fades it out after chapter 1 using the config-driven chapter system.
+- Frames 41–42 of the source video have a faint ghosted edge on the vase (a seam in the original render). It is visible only when scrubbing slowly through that point.
 - `?debug` in the URL exposes `window.__nakshi` for automated checks. It is harmless, but consider removing it at M6.
 - On a phone held sideways (844×390), the title block sits close to the masthead. It is acceptable, but revisit it in M5.
 
 ## Next steps
-- M3: overlays fade in and out by frame range from `config.js`. The hero becomes chapter 1. Verify each line lands on its visual moment, and adjust the frame ranges after viewing the frames.
+- M4: finale over frames 140–159 (the pull-back and hold): the Karu mark, **Crafted from memory.**, the series line, and the **Explore the Nakshi Series** and **Notify me** buttons (placeholder links in config). The buttons must not be focusable while the finale is hidden.

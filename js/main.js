@@ -5,6 +5,7 @@ import { CONFIG } from '../config.js';
 import { createStage } from './canvas.js';
 import { createFrameStore, pickStep } from './frames.js';
 import { initLoader, initLinks, initFetchIndicator, fontsReady } from './ui.js';
+import { createChapters } from './chapters.js';
 
 const { frames: F, scroll: S } = CONFIG;
 
@@ -17,6 +18,13 @@ initLinks(CONFIG.links);
 const stage = createStage(document.getElementById('stage-canvas'), CONFIG.canvas);
 const loader = initLoader(CONFIG.loader);
 const fetching = initFetchIndicator(CONFIG.loader.indicatorDelayMs);
+const chapters = createChapters({
+  chapters: CONFIG.chapters,
+  count: F.count,
+  fade: CONFIG.text.fadeFrames,
+  frame: F,
+  vaseHalfWidth: CONFIG.text.vaseHalfWidth,
+});
 
 // ---------- Scroll geometry ----------
 
@@ -81,6 +89,7 @@ function tick(now) {
 
   const index = Math.round(shown);
   stage.draw(store.nearest(index));
+  chapters.update(shown);
 
   if (index !== lastIndex) {
     store.setFocus(Math.round(target));
@@ -103,6 +112,7 @@ function kick() {
 measure();
 // A reload mid-page restores the scroll position: start there instead of spinning up from frame 1.
 shown = targetFrame();
+chapters.update(shown);
 store.start(Math.round(shown));
 
 window.addEventListener('scroll', kick, { passive: true });
@@ -130,5 +140,5 @@ Promise.allSettled([firstOrFail, fontsReady(), loader.artReady]).then(loader.rev
 
 // Debug handle for automated checks (?debug in the URL); costs nothing otherwise.
 if (new URLSearchParams(location.search).has('debug')) {
-  window.__nakshi = { store, get shown() { return shown; }, targetFrame, get running() { return running; } };
+  window.__nakshi = { store, chapters, get shown() { return shown; }, targetFrame, get running() { return running; } };
 }

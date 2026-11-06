@@ -51,15 +51,27 @@ export const CONFIG = {
     // because it must work even if this module never loads.
   },
 
-  // Chapter text. `frames` is the inclusive frame range where the line is visible.
-  // Tune these after watching the scrub; the engine reads nothing else.
+  text: {
+    fadeFrames: 4,        // each line fades in over its first N frames and out over its last N
+    // Source px from the frame's centre to the vase's widest edge in the close-ups. Landscape
+    // text is sized to stop short of it on every aspect ratio.
+    vaseHalfWidth: 300,
+  },
+
+  // Chapter text. `frames` is the inclusive range where a line is on screen; the fades happen
+  // inside it, so neighbouring ranges never overlap. Ranges were set by checking each frame:
+  //   1–24 full vase, nearly still · 25–40 push-in to the river · 41–56 river and boat close
+  //   57–75 the home and harvest figure · 76–99 the river returns · 100–128 into the rim
+  //   129–144 pull-back · 145–159 full vase, holding.
+  // The intro's words live in index.html (so they paint before any script); its range here
+  // only controls when it fades.
   chapters: [
-    { id: 'intro',   frames: [1, 12],    lines: [{ kind: 'title', text: 'NAKSHI, IN CLAY' }, { kind: 'tagline', text: 'A Bengali textile imagined as a vessel.' }] },
-    { id: 'thread',  frames: [13, 38],   lines: [{ text: 'Born as thread.' }] },
-    { id: 'river',   frames: [39, 55],   lines: [{ text: 'A river, remembered.' }] },
-    { id: 'home',    frames: [56, 71],   lines: [{ text: 'A home, stitched in.' }] },
-    { id: 'season',  frames: [72, 102],  lines: [{ text: 'Every season, held.' }] },
-    { id: 'rim',     frames: [103, 128], lines: [{ text: 'Held in clay.' }] },
-    { id: 'finale',  frames: [129, 159], lines: [] },
+    { id: 'intro',   frames: [1, 18],    lines: [] },
+    { id: 'thread',  frames: [22, 40],   lines: [{ text: 'Born as thread.' }] },
+    { id: 'river',   frames: [43, 55],   lines: [{ text: 'A river, remembered.' }] },
+    { id: 'home',    frames: [58, 74],   lines: [{ text: 'A home, stitched in.' }] },
+    { id: 'season',  frames: [78, 99],   lines: [{ text: 'Every season, held.' }] },
+    { id: 'rim',     frames: [104, 127], lines: [{ text: 'Held in clay.' }] },
+    { id: 'finale',  frames: [140, 159], lines: [] }, // built in M4
   ],
 };

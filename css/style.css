@@ -255,9 +255,72 @@ a { color: inherit; }
   to   { stroke-dashoffset: 0; }
 }
 
+/* ---------- Chapter lines ---------- */
+
+.hero,
+.chapter { will-change: opacity; }
+
+.chapters {
+  position: absolute;
+  inset: 0;
+}
+
+/* Same left column as the hero. Its width is set from where the vase's widest close-up edge
+   lands on this screen (--vase-left, from chapters.js), so a line wraps rather than touch it. */
+.chapter {
+  position: absolute;
+  left: var(--gutter);
+  top: 50%;
+  transform: translateY(-50%);
+  width: max(13rem, calc(var(--vase-left, 30vw) - var(--gutter) - 2rem));
+  max-width: 30rem;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.chapter__line {
+  margin: 0;
+  font-style: italic;
+  font-size: clamp(1.9rem, 2.7vw, 3.1rem);
+  line-height: 1.12;
+  text-wrap: balance;
+  /* A soft halo of the backdrop colour: invisible on the paper, but it keeps the ink legible
+     where a close-up reaches the text. */
+  text-shadow:
+    0 0 0.9em rgb(220 195 159 / 0.9),
+    0 0 0.25em rgb(220 195 159 / 0.7);
+}
+
+/* Sewn in stitch by stitch as the chapter scrolls past: how far through this scene you are. */
+.chapter__stitch {
+  width: 96px;
+  height: 4px;
+  margin-top: 1.1rem;
+  overflow: visible;
+  clip-path: inset(0 100% 0 0);
+}
+.chapter__stitch line {
+  stroke: var(--rust);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 4 8;
+}
+
 /* Portrait phones: the canvas draws the frame slightly smaller and feathers it into the
    backdrop (see canvas.js), which opens a band above the vase for the text. */
 @media (max-aspect-ratio: 1/1) {
+  .chapter {
+    top: calc(max(18px, env(safe-area-inset-top)) + 70px);
+    left: var(--gutter);
+    right: var(--gutter);
+    transform: none;
+    width: auto;
+    max-width: none;
+    text-align: center;
+  }
+  .chapter__line { font-size: clamp(1.7rem, 7.4vw, 2.5rem); }
+  .chapter__stitch { margin: 0.8rem auto 0; }
+
   .hero {
     top: calc(max(18px, env(safe-area-inset-top)) + 64px);
     left: var(--gutter);
