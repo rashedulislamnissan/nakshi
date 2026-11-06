@@ -8,7 +8,7 @@ A product page for **Nakshi, in Clay**, a concept vessel by the brand **Karu**: 
 
 ## How it works
 
-The vase is a 13.2-second camera move rendered as 159 still frames (1280×720 WebP, 12 fps, about 5 MB in total). There is no `<video>` element. A 600vh scroll container holds a sticky full-screen `<canvas>`, and scroll progress picks the frame to draw. The frame on screen eases toward that target in a `requestAnimationFrame` loop that sleeps when nothing is moving, so the vase turns smoothly forward and backward under a wheel, trackpad or finger.
+The vase is a 13.2-second camera move rendered as 159 still frames (1920×1080 WebP, 12 fps, about 10 MB in total). There is no `<video>` element. A 600vh scroll container holds a sticky full-screen `<canvas>`, and scroll progress picks the frame to draw. The frame on screen eases toward that target in a `requestAnimationFrame` loop that sleeps when nothing is moving, so the vase turns smoothly forward and backward under a wheel, trackpad or finger.
 
 The frames load in order of need: the first frame alone, then every fourth frame (so the whole turn can be scrubbed early), then the gaps nearest wherever the visitor is looking. The canvas always draws the nearest frame already loaded, so it is never blank. Frames stay as compressed images, and only the few just ahead of the scroll are decoded early. Data-saving and 2G connections fetch every second frame. The chapter text is plain HTML over the canvas, faded by the frame on screen so it moves in step with the picture. Visitors who prefer reduced motion, or who have JavaScript off, get a still layout instead: one full-screen key frame per chapter, with the same words.
 
@@ -33,7 +33,7 @@ Everything adjustable lives in [`config.js`](config.js): the copy, links, chapte
 
 ## Assets
 
-- `frames/`: 159 frames extracted from the source video. *(How the source video was made: add a sentence here.)*
+- `frames/`: 159 frames taken from every second frame of the 1280×720, 24 fps source video. Each was upscaled 4× with [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN) (`realesrgan-x4plus`), downscaled to 1920×1080 with Lanczos, and saved as WebP at quality 72. The upscale keeps the embroidery crisp on high-density screens, which would otherwise stretch the 720p source 2–2.5×. *(How the source video was made: add a sentence here.)*
 - `assets/entrance*.webp`: the entrance card, shown while the first frame loads.
 - `assets/karu-mark.png`: the Karu mark, cut out from the supplied logo.
 - `fonts/`: Cormorant Garamond, self-hosted ([SIL Open Font License](fonts/OFL.txt)).

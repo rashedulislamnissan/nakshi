@@ -52,6 +52,14 @@
   - Branch protection on `main`: no force-pushes, no deletion, and the rule applies to admins too. Only the owner can push.
   - Live checks: all 176 published files return 200 from the `/nakshi/` subpath. The real site boots, loads all 159 frames, scrubs and reaches the finale at 1440×900 and 390×844 @3x, with no console errors and no 4xx responses.
 
+- **HD frames** (2026-11-06)
+  - The 720p source looked very blurry on high-density screens (stretched 2–2.5×). I first checked the live canvas renders at full device resolution, which ruled out a bug.
+  - Frames were re-made from the source video: every second frame, then Real-ESRGAN `realesrgan-x4plus` (4×, about 13 s/frame on a GTX 1650, 35 min in total), then Lanczos down to 1920×1080, then WebP q72. That gives about 62 KB per frame and 9.6 MB in total, inside the spec's ~12 MB.
+  - Checks: every frame matches the old frame at the same moment (36–40 dB). There is no visible shimmer across consecutive frames; frame-to-frame change is a steady 1.5 dB above a plain stretch.
+  - `config.frames` is now 1920×1080, and the text-clearance values are scaled 1.5× (450 and 285), so text placement is pixel-identical.
+  - The full suite re-passed: M2 scrub 657 frames with 1 over 33 ms and 0 long tasks; slow-network, saveData and hidden-tab checks; M3 text clearance; M4 finale and keyboard; M5 still layouts. Touch scrub ran 726 frames with 0 slow, and memory was 126 MB after full scrubs (was 115 MB).
+  - The upscaler is a portable build at `%LOCALAPPDATA%\realesrgan\`. To rebuild from a new source video, see the steps in the README.
+
 ## Current milestone
 - All milestones complete.
 

@@ -21,8 +21,10 @@ export const CONFIG = {
   frames: {
     count: 159,
     path: (n) => `./frames/frame_${String(n).padStart(4, '0')}.webp`,
-    width: 1280,
-    height: 720,
+    // 1920×1080: upscaled 1.5× from the 1280×720 source video with Real-ESRGAN (x4plus), so
+    // high-density screens stretch the frame far less. See README.
+    width: 1920,
+    height: 1080,
     coarseStep: 4,        // first background pass loads every Nth frame so scrubbing works early
     saveDataStep: 2,      // on saveData / slow connections, only every Nth frame is ever used
   },
@@ -53,8 +55,8 @@ export const CONFIG = {
     fadeFrames: 4,        // each line fades in over its first N frames and out over its last N
     // Source px from the frame's centre to the vase's widest edge in the close-ups. Landscape
     // text is sized to stop short of it on every aspect ratio.
-    vaseHalfWidth: 300,
-    finaleVaseHalfWidth: 190,  // the same for the pulled-back final frames, where the vase is smaller
+    vaseHalfWidth: 450,
+    finaleVaseHalfWidth: 285,  // the same for the pulled-back final frames, where the vase is smaller
   },
 
   // Chapter text. `frames` is the inclusive range where a line is on screen; the fades happen
