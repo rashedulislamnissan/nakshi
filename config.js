@@ -5,7 +5,7 @@ export const CONFIG = {
   brand: {
     name: 'Karu',
     logo: './assets/karu-logo.jpg',
-    title: 'NAKSHI, IN CLAY',
+    title: 'Nakshi, in Clay',   // shown in capitals; breaks after the comma on wide screens
     tagline: 'A Bengali textile imagined as a vessel.',
     finaleLine: 'Crafted from memory.',
     series: ['Nakshi Series / 01', 'River Memory', 'Bangladesh'],
@@ -56,6 +56,7 @@ export const CONFIG = {
     // Source px from the frame's centre to the vase's widest edge in the close-ups. Landscape
     // text is sized to stop short of it on every aspect ratio.
     vaseHalfWidth: 300,
+    finaleVaseHalfWidth: 190,  // the same for the pulled-back final frames, where the vase is smaller
   },
 
   // Chapter text. `frames` is the inclusive range where a line is on screen; the fades happen

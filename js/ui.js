@@ -67,9 +67,38 @@ export function initFetchIndicator(delayMs) {
   return { progress };
 }
 
-export function initLinks(links) {
-  const portfolio = document.getElementById('portfolio-link');
-  if (portfolio) portfolio.href = links.portfolio;
+/**
+ * Copy and links come from config.js; the HTML carries the same words so the page reads
+ * correctly before (or without) this running. Runs while the entrance card still covers the
+ * page, so a changed word never visibly swaps.
+ */
+export function applyContent(config) {
+  const get = (path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), config);
+
+  for (const el of document.querySelectorAll('[data-config]')) {
+    const value = get(el.dataset.config);
+    if (typeof value === 'string') el.textContent = value;
+  }
+
+  // The title breaks after its comma on wide screens: "Nakshi," / "in Clay".
+  const title = document.getElementById('hero-title');
+  const t = config.brand.title;
+  if (title && t) {
+    const cut = t.indexOf(',');
+    const parts = cut > -1 ? [t.slice(0, cut + 1), t.slice(cut + 1).trim()] : [t];
+    title.replaceChildren(...parts.flatMap((part, i) => {
+      const span = document.createElement('span');
+      span.className = 'hero__line';
+      span.textContent = part;
+      return i ? [document.createTextNode(' '), span] : [span];
+    }));
+  }
+
+  const links = { 'portfolio-link': config.links.portfolio, 'notify-link': config.links.notify, 'explore-link': config.links.explore };
+  for (const [id, href] of Object.entries(links)) {
+    const a = document.getElementById(id);
+    if (a && href) a.href = href;
+  }
 }
 
 /** Resolves when the web fonts are ready, or after `capMs`, whichever comes first. */

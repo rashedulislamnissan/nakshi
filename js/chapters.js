@@ -13,16 +13,14 @@ const TUNING = {
  * @param {object} opts.frame      { width, height } of the source frames
  * @param {number} opts.vaseHalfWidth  source px from frame centre to the vase's widest edge in close-ups
  */
-export function createChapters({ chapters, count, fade, frame, vaseHalfWidth }) {
+export function createChapters({ chapters, count, fade, frame, vaseHalfWidth, finaleVaseHalfWidth }) {
   const root = document.getElementById('chapters');
-  const hero = document.getElementById('hero');
 
   const items = chapters.map((ch) => {
-    let el;
-    if (ch.id === 'intro') {
-      // The intro already exists in the HTML so it paints before any script runs.
-      el = hero;
-    } else if (ch.lines.length) {
+    // The intro and finale are written in the HTML (they paint before any script, and work
+    // without it); only their timing comes from config.
+    let el = document.querySelector(`[data-chapter="${ch.id}"]`);
+    if (!el && ch.lines.length) {
       el = document.createElement('div');
       el.className = 'chapter';
       el.dataset.chapter = ch.id;
@@ -52,8 +50,10 @@ export function createChapters({ chapters, count, fade, frame, vaseHalfWidth }) 
     const w = window.innerWidth;
     const h = window.innerHeight;
     const s = Math.max(w / frame.width, h / frame.height);
-    const edge = Math.max(0, w / 2 - vaseHalfWidth * s);
-    document.documentElement.style.setProperty('--vase-left', `${Math.round(edge)}px`);
+    const edge = (half) => `${Math.round(Math.max(0, w / 2 - half * s))}px`;
+    const root = document.documentElement.style;
+    root.setProperty('--vase-left', edge(vaseHalfWidth));
+    root.setProperty('--vase-left-final', edge(finaleVaseHalfWidth));
   }
 
   function opacityAt(it, f) {

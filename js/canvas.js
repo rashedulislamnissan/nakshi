@@ -93,21 +93,24 @@ export function createStage(canvas, { maxDpr = 2, portraitScale = 1 } = {}) {
     if (ch > cw) s = Math.max(cw / iw, s * portraitScale);
 
     const dw = iw * s;
-    const dh = ih * s;
     const dx = (cw - dw) / 2;
-    const dy = (ch - dh) / 2;
+    // Whole pixels vertically: at a fractional offset the frame's (lighter) top row bleeds
+    // through the anti-aliased edge of the fade as a hairline.
+    const dy = Math.round((ch - ih * s) / 2);
+    const dh = ch - 2 * dy;
 
-    if (dy <= 0.5) {
-      ctx.drawImage(img, dx, dy, dw, dh);
+    if (dy <= 0) {
+      ctx.drawImage(img, dx, (ch - ih * s) / 2, dw, ih * s);
       return;
     }
 
     const { top, bottom } = edgeTones(img);
-    ctx.fillStyle = rgba(top, 1);
-    ctx.fillRect(0, 0, cw, Math.ceil(dy));
-    ctx.fillStyle = rgba(bottom, 1);
-    ctx.fillRect(0, Math.floor(dy + dh), cw, ch);
     ctx.drawImage(img, dx, dy, dw, dh);
+    // Bands overlap the frame by a pixel so no edge row survives.
+    ctx.fillStyle = rgba(top, 1);
+    ctx.fillRect(0, 0, cw, dy + 1);
+    ctx.fillStyle = rgba(bottom, 1);
+    ctx.fillRect(0, dy + dh - 1, cw, ch - (dy + dh) + 1);
 
     const f = Math.min(dh * 0.14, TUNING.featherMax * dpr);
     let g = ctx.createLinearGradient(0, dy, 0, dy + f);

@@ -29,6 +29,8 @@
   <script type="module" src="./js/main.js"></script>
 </head>
 <body>
+  <a class="skip-link" id="skip-end" href="#finale">Skip to the end</a>
+
   <div class="loader" id="loader" aria-hidden="true">
     <img class="loader__art"
          src="./assets/entrance-1200.webp"
@@ -54,9 +56,9 @@
         </noscript>
 
         <div class="overlay">
-          <div class="hero" id="hero">
-            <h1 class="hero__title"><span class="hero__line">Nakshi,</span> <span class="hero__line">in Clay</span></h1>
-            <p class="hero__tagline">A Bengali textile imagined as a vessel.</p>
+          <div class="hero" id="hero" data-chapter="intro">
+            <h1 class="hero__title" id="hero-title"><span class="hero__line">Nakshi,</span> <span class="hero__line">in Clay</span></h1>
+            <p class="hero__tagline" data-config="brand.tagline">A Bengali textile imagined as a vessel.</p>
             <p class="cue" id="scroll-cue">
               <span class="cue__label">Scroll to turn the vase</span>
               <svg class="cue__thread" viewBox="0 0 8 64" aria-hidden="true" focusable="false">
@@ -66,6 +68,23 @@
           </div>
           <!-- Chapter lines are built from config.js by js/chapters.js. -->
           <div class="chapters" id="chapters"></div>
+
+          <section class="finale" id="finale" data-chapter="finale" aria-labelledby="finale-line">
+            <div class="finale__sign">
+              <img class="finale__mark" src="./assets/karu-mark.png" alt="" width="200" height="205">
+              <p class="finale__brand" data-config="brand.name">Karu</p>
+              <h2 class="finale__line" id="finale-line" data-config="brand.finaleLine">Crafted from memory.</h2>
+              <div class="finale__actions">
+                <a class="button" id="notify-link" href="#">Notify me</a>
+                <a class="stitched-link" id="explore-link" href="#">Explore the Nakshi Series</a>
+              </div>
+            </div>
+            <p class="finale__series">
+              <span data-config="brand.series.0">Nakshi Series / 01</span>
+              <span class="finale__series-name" data-config="brand.series.1">River Memory</span>
+              <span data-config="brand.series.2">Bangladesh</span>
+            </p>
+          </section>
         </div>
       </div>
     </section>

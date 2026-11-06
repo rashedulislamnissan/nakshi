@@ -27,8 +27,16 @@
   - Each line has a running stitch under it that sews in, whole stitches at a time, as you scroll through that chapter.
   - A soft halo in the backdrop colour keeps the ink readable where a portrait close-up reaches the text band.
 
+- **M4: Finale** (2026-11-06)
+  - Frames 140–159: the Karu mark, **Crafted from memory.** (set in the opening title's tracked capitals, so the page closes in the voice it opened with), and the **Notify me** button with an **Explore the Nakshi Series** link underlined in a running stitch. The series line sits bottom-right with a hairline, as on the poster.
+  - Portrait: an end card. The sign-off rests on a wash of backdrop colour over the vase's foot, and the series line is one line in the top band, scaled to the screen width.
+  - Short landscape screens (phone held sideways): the repeated mark is dropped and the spacing tightened, so the sign-off clears the masthead.
+  - All copy and links come from `config.js` (`applyContent` in ui.js). The HTML carries the same words as a fallback. The title splits after its comma.
+  - Keyboard: hidden chapters use `visibility: hidden`, so the finale links are not tabbable until they are on screen. A "Skip to the end" link (first Tab stop, visible on focus) jumps straight to frame 159 and focuses **Notify me**. Tab order at frame 1: skip, Karu, Portfolio. At frame 159: Portfolio, Notify me, Explore.
+  - Fix: on portrait, the frame now draws at whole-pixel offsets. A fractional offset let the frame's lighter top row show as a 1px hairline under the masthead.
+
 ## Current milestone
-- M4: Finale (next)
+- M5: Mobile, performance, accessibility (next)
 
 ## Decisions
 - **Font:** Cormorant Garamond (OFL), self-hosted in `fonts/`, latin subset, weights 500 / 500 italic / 600 (about 69 KB in total).
@@ -43,7 +51,8 @@
 ## Known issues
 - Frames 41–42 of the source video have a faint ghosted edge on the vase (a seam in the original render). It is visible only when scrubbing slowly through that point.
 - `?debug` in the URL exposes `window.__nakshi` for automated checks. It is harmless, but consider removing it at M6.
-- On a phone held sideways (844×390), the title block sits close to the masthead. It is acceptable, but revisit it in M5.
+- On a phone held sideways (844×390), the hero is tighter than on other screens (short-landscape rules added in M4). Re-check it in M5.
 
 ## Next steps
-- M4: finale over frames 140–159 (the pull-back and hold): the Karu mark, **Crafted from memory.**, the series line, and the **Explore the Nakshi Series** and **Notify me** buttons (placeholder links in config). The buttons must not be focusable while the finale is hidden.
+- M5: a `prefers-reduced-motion` static layout (key frames and the same text, no scrubbing); a `<noscript>` layout (frame 1, all text, finale visible); a touch-scroll check; a memory check on a phone profile; hidden-tab pause (done in M2, re-verify).
+- Placeholders still to fill in `config.js`: the `notify` email, the `explore` URL and the `portfolio` URL.

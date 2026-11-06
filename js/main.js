@@ -4,7 +4,7 @@
 import { CONFIG } from '../config.js';
 import { createStage } from './canvas.js';
 import { createFrameStore, pickStep } from './frames.js';
-import { initLoader, initLinks, initFetchIndicator, fontsReady } from './ui.js';
+import { initLoader, applyContent, initFetchIndicator, fontsReady } from './ui.js';
 import { createChapters } from './chapters.js';
 
 const { frames: F, scroll: S } = CONFIG;
@@ -13,7 +13,7 @@ const scroller = document.getElementById('scroller');
 const status = document.getElementById('status');
 
 scroller.style.height = `${S.heightVh}vh`;
-initLinks(CONFIG.links);
+applyContent(CONFIG);
 
 const stage = createStage(document.getElementById('stage-canvas'), CONFIG.canvas);
 const loader = initLoader(CONFIG.loader);
@@ -24,6 +24,7 @@ const chapters = createChapters({
   fade: CONFIG.text.fadeFrames,
   frame: F,
   vaseHalfWidth: CONFIG.text.vaseHalfWidth,
+  finaleVaseHalfWidth: CONFIG.text.finaleVaseHalfWidth,
 });
 
 // ---------- Scroll geometry ----------
@@ -114,6 +115,18 @@ measure();
 shown = targetFrame();
 chapters.update(shown);
 store.start(Math.round(shown));
+
+// "Skip to the end": land on the finale at once (no long eased turn) and put keyboard focus
+// on its first action, since the finale's links can't be tabbed to while it is hidden.
+document.getElementById('skip-end').addEventListener('click', (e) => {
+  e.preventDefault();
+  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+  measure();
+  shown = targetFrame();
+  stage.draw(store.nearest(Math.round(shown)));
+  chapters.update(shown);
+  document.getElementById('notify-link').focus({ preventScroll: true });
+});
 
 window.addEventListener('scroll', kick, { passive: true });
 window.addEventListener('resize', () => { measure(); kick(); });
